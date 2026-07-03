@@ -33,7 +33,12 @@ set_property -dict { PACKAGE_PIN M14   IOSTANDARD LVCMOS33 } [get_ports { led[3]
 
 set_property -dict { PACKAGE_PIN D19   IOSTANDARD LVCMOS33 } [get_ports { clkpulse }]; #IO_L4P_T0_35 Sch=btn[0]
 # Suppress warning about clock routing - DISCOURAGED IN GENERAL!!!
-set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets clkpulse_IBUF] 
+# Guarded: the clkpulse_IBUF net only exists after IBUF insertion, so
+# apply the property only if the net is present (avoids Common 17-55).
+set clkpulse_net [get_nets -quiet clkpulse_IBUF]
+if {[llength $clkpulse_net]} {
+    set_property CLOCK_DEDICATED_ROUTE FALSE $clkpulse_net
+}
 
 set_property -dict { PACKAGE_PIN D20   IOSTANDARD LVCMOS33 } [get_ports { rst }]; #IO_L4N_T0_35 Sch=btn[1]
 
